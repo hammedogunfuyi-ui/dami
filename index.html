@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Dami Project - Admin</title>
+<title>Dami Wallet - Admin</title>
 <script src="https://cdn.tailwindcss.com"></script>
 <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth-compat.js"></script>
@@ -22,13 +22,12 @@
 <div id="loginPage">
   <div class="flex items-center justify-center min-h-screen">
     <div class="bg-white p-8 rounded-2xl shadow-2xl w-96">
-      <h2 class="text-3xl font-bold text-center mb-6 text-indigo-600">Dami Project</h2>
+      <h2 class="text-3xl font-bold text-center mb-6 text-indigo-600">Dami Wallet</h2>
       <input id="email" type="email" placeholder="Email" class="border-2 border-gray-200 p-3 w-full mb-3 rounded-lg">
       <input id="password" type="password" placeholder="Password" class="border-2 border-gray-200 p-3 w-full mb-4 rounded-lg">
       <button onclick="login()" class="bg-indigo-600 text-white p-3 w-full rounded-lg font-bold mb-3">Login</button>
       <button onclick="signup()" class="bg-green-500 text-white p-3 w-full rounded-lg font-bold mb-3">Create Account</button>
 
-      <!-- ADDED GOOGLE POPUP BUTTON -->
       <div class="flex items-center my-3">
         <div class="flex-1 h-px bg-gray-300"></div>
         <span class="px-2 text-gray-500 text-sm">OR</span>
@@ -38,19 +37,17 @@
         <svg class="w-5 h-5" viewBox="0 0 48 48"><path fill="#FFC107" d="M43.611,20.083H42V20H24v8h11.303c-1.649,4.657-6.08,8-11.303,8c-6.627,0-12-5.373-12-12c0-6.627,5.373-12,12-12c3.059,0,5.842,1.154,7.961,3.039l5.657-5.657C34.046,2.053,29.268,0,24,0C12.955,0,4,8.955,4,20c0,11.045,8.955,20,20,20c11.045,0,20-8.955,20-20C44,20.485,43.837,20.273,43.611,20.083z"></path></svg>
         Sign in with Google
       </button>
-
       <p id="err" class="text-red-500 text-center mt-3 text-sm"></p>
     </div>
   </div>
 </div>
 
-<!-- ADMIN DASHBOARD -->
+<!-- DASHBOARD -->
 <div id="dashPage" style="display:none">
   <nav class="bg-white shadow-md p-4">
     <div class="max-w-7xl mx-auto flex justify-between items-center">
-      <h1 class="text-2xl font-bold text-indigo-600">Dami Project</h1>
+      <h1 class="text-2xl font-bold text-indigo-600">Dami Wallet</h1>
       <div class="flex gap-3">
-        <a href="resume.html" target="_blank" class="bg-blue-500 text-white px-5 py-2 rounded-lg font-semibold hover:bg-blue-600">Resume</a>
         <button onclick="logout()" class="bg-red-500 text-white px-5 py-2 rounded-lg font-semibold hover:bg-red-600">Logout</button>
       </div>
     </div>
@@ -69,17 +66,24 @@
       <div class="bg-white p-6 rounded-xl shadow-lg">
         <h3 class="text-xl font-bold mb-4">All Users - Admin Table</h3>
         <table>
-          <thead><tr><th>#</th><th>Email</th><th>User ID</th><th>Joined</th></tr></thead>
-          <tbody id="usersTable"><tr><td colspan="4" class="text-center p-4">Loading...</td></tr></tbody>
+          <thead><tr><th>#</th><th>Email</th><th>Balance</th><th>User ID</th><th>Joined</th></tr></thead>
+          <tbody id="usersTable"><tr><td colspan="5" class="text-center p-4">Loading...</td></tr></tbody>
         </table>
       </div>
     </div>
 
-    <!-- NORMAL USER CONTENT -->
+    <!-- NORMAL USER CONTENT - WALLET -->
     <div id="userContent" style="display:none">
-      <div class="bg-white p-6 rounded-xl shadow-lg text-center">
-        <h3 class="text-2xl font-bold text-gray-700">You are a normal user</h3>
-        <p class="text-gray-500 mt-2">You don't have permission to view the admin table.</p>
+      <div class="bg-white p-6 rounded-xl shadow-lg mb-6">
+        <h3 class="text-gray-500 text-sm">Your Balance</h3>
+        <p id="userBalance" class="text-5xl font-bold mt-2 text-green-600">$0.00</p>
+      </div>
+
+      <div class="bg-white p-6 rounded-xl shadow-lg">
+        <h3 class="text-xl font-bold mb-4">Deposit Money</h3>
+        <input id="depositAmount" type="number" placeholder="Enter amount" class="border-2 border-gray-200 p-3 w-full mb-3 rounded-lg">
+        <button onclick="deposit()" class="bg-green-500 text-white p-3 w-full rounded-lg font-bold">Deposit</button>
+        <p id="depositMsg" class="text-center mt-3 text-sm"></p>
       </div>
     </div>
 
@@ -102,6 +106,7 @@ const db = firebase.firestore();
 
 // CHANGE THIS TO YOUR ADMIN EMAIL
 const ADMIN_EMAIL = "admin@test.com";
+let currentUserData = null;
 
 function login() {
   document.getElementById("err").innerText = "";
@@ -117,12 +122,17 @@ function signup() {
   const password = document.getElementById("password").value;
   auth.createUserWithEmailAndPassword(email, password)
 .then(userCred => {
-    db.collection("users").doc(userCred.user.uid).set({email: userCred.user.email, name: email.split('@')[0], createdAt: new Date()})
+    db.collection("users").doc(userCred.user.uid).set({
+      email: userCred.user.email,
+      name: email.split('@')[0],
+      balance: 0, // NEW: start with 0 balance
+      transactions: [], // NEW: empty transaction history
+      createdAt: new Date()
+    })
   })
 .catch(e => document.getElementById("err").innerText = e.message)
 }
 
-// ADDED: GOOGLE POPUP LOGIN
 function googlePopupLogin() {
   document.getElementById("err").innerText = "";
   const provider = new firebase.auth.GoogleAuthProvider();
@@ -131,6 +141,32 @@ function googlePopupLogin() {
 }
 
 function logout() { auth.signOut() }
+
+// NEW: DEPOSIT FUNCTION
+function deposit(){
+  const amount = parseFloat(document.getElementById("depositAmount").value);
+  document.getElementById("depositMsg").innerText = "";
+  if(isNaN(amount) || amount <= 0){
+    document.getElementById("depositMsg").innerText = "Enter a valid amount";
+    document.getElementById("depositMsg").className = "text-red-500 text-center mt-3 text-sm";
+    return;
+  }
+
+  const userRef = db.collection("users").doc(auth.currentUser.uid);
+  const newBalance = currentUserData.balance + amount;
+  const newTransaction = {type: "Deposit", amount: amount, date: new Date()};
+
+  userRef.update({
+    balance: newBalance,
+    transactions: firebase.firestore.FieldValue.arrayUnion(newTransaction)
+  }).then(() => {
+    document.getElementById("depositMsg").innerText = "$" + amount + " deposited successfully!";
+    document.getElementById("depositMsg").className = "text-green-500 text-center mt-3 text-sm";
+    document.getElementById("depositAmount").value = "";
+  }).catch(e => {
+    document.getElementById("depositMsg").innerText = e.message;
+  })
+}
 
 function loadUsers(){
   db.collection("users").orderBy("createdAt", "desc").onSnapshot(snapshot => {
@@ -141,18 +177,31 @@ function loadUsers(){
     snapshot.forEach(doc => {
       const user = doc.data();
       const date = user.createdAt? new Date(user.createdAt.seconds * 1000).toLocaleDateString() : "N/A";
-      usersTable.innerHTML += `<tr><td>${count}</td><td>${user.email}</td><td class="text-xs">${doc.id}</td><td>${date}</td></tr>`;
+      const balance = user.balance? user.balance.toFixed(2) : "0.00";
+      usersTable.innerHTML += `<tr><td>${count}</td><td>${user.email}</td><td class="font-bold text-green-600">$${balance}</td><td class="text-xs">${doc.id}</td><td>${date}</td></tr>`;
       count++;
     })
   })
 }
 
+function loadUserBalance(uid){
+  db.collection("users").doc(uid).onSnapshot(doc => {
+    if(doc.exists){
+      currentUserData = doc.data();
+      const balance = currentUserData.balance? currentUserData.balance.toFixed(2) : "0.00";
+      document.getElementById("userBalance").innerText = "$" + balance;
+    }
+  })
+}
+
 auth.onAuthStateChanged(user => {
   if(user){
-    // ADDED: SAVE USER TO "users" COLLECTION FOR BOTH EMAIL AND GOOGLE
+    // SAVE USER TO "users" COLLECTION WITH BALANCE
     db.collection("users").doc(user.uid).set({
       email: user.email,
       name: user.displayName || user.email.split('@')[0],
+      balance: 0, // will not overwrite if exists because of merge
+      transactions: [],
       createdAt: new Date()
     }, {merge: true})
 
@@ -160,14 +209,14 @@ auth.onAuthStateChanged(user => {
     document.getElementById("dashPage").style.display="block";
     document.getElementById("userEmail").innerText = user.email;
 
-    // CHECK IF ADMIN
     if(user.email === ADMIN_EMAIL){
       document.getElementById("adminContent").style.display="block";
       document.getElementById("userContent").style.display="none";
-      loadUsers(); // only admin can load table
+      loadUsers();
     } else {
       document.getElementById("adminContent").style.display="none";
       document.getElementById("userContent").style.display="block";
+      loadUserBalance(user.uid); // load balance for normal user
     }
 
   } else {

@@ -3,133 +3,136 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Dami Wallet - Multi Crypto</title>
+<title>Dami Project - Wallet</title>
 <script src="https://cdn.tailwindcss.com"></script>
 <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script>
-<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;600;700&display=swap" rel="stylesheet">
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-storage-compat.js"></script>
 <style>
-  body { font-family: 'Space Grotesk', sans-serif; }
+  body { font-family: 'Inter', sans-serif; }
+  @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&display=swap');
+.dark-glass { backdrop-filter: blur(16px); background: rgba(17, 24, 39, 0.7); border: 1px solid rgba(255, 255, 255, 0.1); }
   table { border-collapse: collapse; width: 100%; }
-  th, td { padding: 14px; text-align: left; border-bottom: 1px solid #e5e7eb; }
-  th { background-color: #f3f4f6; font-weight: 700; }
-  tr:hover { background-color: #f9fafb; }
-  button { cursor: pointer; }
-.tab-btn.active { background: linear-gradient(135deg, #6366f1, #4f46e5); color: white; box-shadow: 0 4px 15px rgba(99,102,241,0.3); }
-.coin-icon { width: 32px; height: 32px; border-radius: 50%; display: inline-flex; align-items: center; justify-content: center; font-weight: 700; color: white; }
-.btc { background: #F7931A; }
-.eth { background: #627EEA; }
-.usdt { background: #26A17B; }
-.usd { background: #22c55e; }
-.history-item { border-left: 4px solid #6366f1; }
-.history-deposit { border-left-color: #22c55e; }
-.history-withdraw { border-left-color: #f97316; }
-.history-send { border-left-color: #ef4444; }
-.history-receive { border-left-color: #3b82f6; }
-.history-admin { border-left-color: #a855f7; }
+  th, td { padding: 12px; text-align: left; border-bottom: 1px solid rgba(255,255,255,0.1); font-size: 14px; }
+  th { background-color: rgba(79, 70, 229, 0.3); font-weight: 700; color: #a5b4fc; }
+  tr:hover { background-color: rgba(79, 70, 229, 0.2); transition: 0.3s; }
+  button { cursor: pointer; transition: all 0.3s; }
+  button:hover { transform: translateY(-2px); }
+.gradient-bg { background: linear-gradient(135deg, #0f172a 0%, #1e1b4b 50%, #312e81 100%); }
+.avatar { width: 40px; height: 40px; border-radius: 50%; object-fit: cover; }
+.balance-card { background: rgba(79, 70, 229, 0.2); border: 1px solid rgba(129, 140, 248, 0.3); }
 </style>
 </head>
-<body class="bg-gradient-to-br from-blue-50 to-indigo-100 min-h-screen">
+<body class="gradient-bg min-h-screen text-white">
 
 <!-- LOGIN PAGE -->
 <div id="loginPage">
-  <div class="flex items-center justify-center min-h-screen px-4">
-    <div class="bg-white p-8 rounded-2xl shadow-2xl w-full max-w-sm">
-      <h2 class="text-3xl font-bold text-center mb-6 text-indigo-600">Dami Wallet</h2>
-      <input id="email" type="email" placeholder="Email" class="border-2 border-gray-200 p-3 w-full mb-3 rounded-lg">
-      <input id="password" type="password" placeholder="Password" class="border-2 border-gray-200 p-3 w-full mb-4 rounded-lg">
-      <button onclick="login()" class="bg-indigo-600 text-white p-3 w-full rounded-lg font-bold mb-3">Login</button>
-      <button onclick="signup()" class="bg-green-500 text-white p-3 w-full rounded-lg font-bold mb-3">Create Account</button>
-      <button onclick="googlePopupLogin()" class="bg-white border-2 border-gray-300 text-gray-700 p-3 w-full rounded-lg font-bold">Sign in with Google</button>
-      <p id="err" class="text-red-500 text-center mt-3 text-sm"></p>
+  <div class="flex items-center justify-center min-h-screen p-4">
+    <div class="dark-glass p-10 rounded-3xl shadow-2xl w-96">
+      <h2 class="text-4xl font-extrabold text-center mb-2 bg-gradient-to-r from-indigo-400 to-purple-400 bg-clip-text text-transparent">Dami Wallet</h2>
+      <input id="loginEmail" type="email" placeholder="Email" class="bg-gray-900/50 border-2 border-gray-700 p-3 w-full mb-3 rounded-xl focus:border-indigo-500 outline-none">
+      <input id="loginPassword" type="password" placeholder="Password" class="bg-gray-900/50 border-2 border-gray-700 p-3 w-full mb-4 rounded-xl focus:border-indigo-500 outline-none">
+      <button onclick="login()" class="bg-gradient-to-r from-indigo-600 to-purple-600 text-white p-3 w-full rounded-xl font-bold mb-3 shadow-lg">Login</button>
+      <button onclick="showSignup()" class="bg-gray-700 hover:bg-gray-600 text-white p-3 w-full rounded-xl font-bold mb-3">Create Account</button>
+      <div class="flex items-center my-3"><div class="flex-1 h-px bg-gray-700"></div><span class="px-2 text-gray-500 text-sm">OR</span><div class="flex-1 h-px bg-gray-700"></div></div>
+      <button onclick="googlePopupLogin()" class="bg-white text-gray-800 p-3 w-full rounded-xl font-bold hover:bg-gray-200 flex items-center justify-center gap-2">Sign in with Google</button>
+      <p id="loginErr" class="text-red-400 text-center mt-3 text-sm"></p>
+    </div>
+  </div>
+</div>
+
+<!-- SIGNUP PAGE -->
+<div id="signupPage" style="display:none">
+  <div class="flex items-center justify-center min-h-screen p-4">
+    <div class="dark-glass p-10 rounded-3xl shadow-2xl w-96">
+      <h2 class="text-4xl font-extrabold text-center mb-2 bg-gradient-to-r from-indigo-400 to-purple-400 bg-clip-text text-transparent">Join Us</h2>
+      <input id="signupName" type="text" placeholder="Full Name" class="bg-gray-900/50 border-2 border-gray-700 p-3 w-full mb-3 rounded-xl focus:border-indigo-500 outline-none">
+      <input id="signupEmail" type="email" placeholder="Email Address" class="bg-gray-900/50 border-2 border-gray-700 p-3 w-full mb-3 rounded-xl focus:border-indigo-500 outline-none">
+      <input id="signupPassword" type="password" placeholder="Password" class="bg-gray-900/50 border-2 border-gray-700 p-3 w-full mb-4 rounded-xl focus:border-indigo-500 outline-none">
+      <button onclick="signup()" class="bg-gradient-to-r from-green-600 to-emerald-600 text-white p-3 w-full rounded-xl font-bold mb-3 shadow-lg">Create Account</button>
+      <button onclick="showLogin()" class="bg-gray-700 hover:bg-gray-600 text-white p-3 w-full rounded-xl font-bold">Back to Login</button>
+      <p id="signupErr" class="text-red-400 text-center mt-3 text-sm"></p>
     </div>
   </div>
 </div>
 
 <!-- DASHBOARD -->
 <div id="dashPage" style="display:none">
-  <nav class="bg-white shadow-md p-4">
+  <nav class="dark-glass shadow-2xl p-4 sticky top-0">
     <div class="max-w-7xl mx-auto flex justify-between items-center">
-      <h1 class="text-2xl font-bold text-indigo-600">Dami Wallet</h1>
-      <button onclick="logout()" class="bg-red-500 text-white px-5 py-2 rounded-lg font-semibold">Logout</button>
+      <h1 class="text-2xl font-extrabold bg-gradient-to-r from-indigo-400 to-purple-400 bg-clip-text text-transparent">Dami Wallet</h1>
+      <div class="flex gap-3 items-center">
+        <img id="navAvatar" src="https://ui-avatars.com/api/?name=U&background=4F46E5&color=fff" class="avatar">
+        <button onclick="showProfile()" class="bg-indigo-600 hover:bg-indigo-700 text-white px-5 py-2 rounded-xl font-semibold">Profile</button>
+        <button onclick="logout()" class="bg-red-600 hover:bg-red-700 text-white px-5 py-2 rounded-xl font-semibold">Logout</button>
+      </div>
     </div>
   </nav>
 
-  <div class="p-4 md:p-8 max-w-7xl mx-auto">
-    <h2 class="text-2xl md:text-3xl font-bold mb-6">Welcome <span id="userEmail" class="text-indigo-600"></span> 👋</h2>
+  <div class="p-8 max-w-7xl mx-auto">
+    <div id="dashboardContent">
+      <h2 class="text-4xl font-bold mb-6">Welcome <span id="userEmail"></span> 👋</h2>
 
-    <!-- WALLET CARD FOR EVERYONE -->
-    <div id="walletCard" style="display:none">
-
-      <!-- COIN TABS - NEW BETTER UI -->
-      <div class="bg-white p-6 rounded-2xl shadow-xl mb-6">
-        <div class="grid grid-cols-2 md:grid-cols-4 gap-3 mb-6">
-          <button onclick="switchCoin('USD')" id="tab-USD" class="tab-btn active p-4 rounded-xl font-bold flex items-center justify-center gap-2">
-            <span class="coin-icon usd">$</span> USD
-          </button>
-          <button onclick="switchCoin('BTC')" id="tab-BTC" class="tab-btn p-4 rounded-xl font-bold bg-gray-100 flex items-center justify-center gap-2">
-            <span class="coin-icon btc">₿</span> BTC
-          </button>
-          <button onclick="switchCoin('ETH')" id="tab-ETH" class="tab-btn p-4 rounded-xl font-bold bg-gray-100 flex items-center justify-center gap-2">
-            <span class="coin-icon eth">Ξ</span> ETH
-          </button>
-          <button onclick="switchCoin('USDT')" id="tab-USDT" class="tab-btn p-4 rounded-xl font-bold bg-gray-100 flex items-center justify-center gap-2">
-            <span class="coin-icon usdt">₮</span> USDT
-          </button>
-        </div>
-
-        <p class="text-gray-500 text-sm uppercase tracking-wider"><span id="coinLabel">USD</span> Balance</p>
-        <p id="userBalance" class="text-6xl font-bold mt-2 bg-gradient-to-r from-green-500 to-emerald-600 bg-clip-text text-transparent">0.00</p>
+      <!-- BALANCE CARDS FOR ALL USERS -->
+      <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
+        <div class="balance-card p-4 rounded-2xl"><p class="text-gray-400 text-sm">USD Balance</p><p id="balUSD" class="text-2xl font-bold text-green-400">$0.00</p><button onclick="openDepositModal('USD')" class="text-xs bg-green-600 px-3 py-1 rounded mt-2">Deposit</button></div>
+        <div class="balance-card p-4 rounded-2xl"><p class="text-gray-400 text-sm">USDT Balance</p><p id="balUSDT" class="text-2xl font-bold text-teal-400">0.00</p><button onclick="openDepositModal('USDT')" class="text-xs bg-teal-600 px-3 py-1 rounded mt-2">Deposit</button></div>
+        <div class="balance-card p-4 rounded-2xl"><p class="text-gray-400 text-sm">BTC Balance</p><p id="balBTC" class="text-2xl font-bold text-orange-400">0.0000</p><button onclick="openDepositModal('BTC')" class="text-xs bg-orange-600 px-3 py-1 rounded mt-2">Deposit</button></div>
+        <div class="balance-card p-4 rounded-2xl"><p class="text-gray-400 text-sm">ETH Balance</p><p id="balETH" class="text-2xl font-bold text-blue-400">0.0000</p><button onclick="openDepositModal('ETH')" class="text-xs bg-blue-600 px-3 py-1 rounded mt-2">Deposit</button></div>
       </div>
 
-      <div class="grid md:grid-cols-2 gap-6">
-        <div class="bg-white p-6 rounded-2xl shadow-xl">
-          <h3 class="text-xl font-bold mb-4 text-green-600">Deposit <span id="depositCoinLabel">USD</span></h3>
-          <input id="depositAmount" type="number" step="any" placeholder="0.00" class="border-2 border-gray-200 p-4 text-lg w-full mb-3 rounded-xl font-semibold">
-          <button onclick="deposit()" class="bg-gradient-to-r from-green-500 to-emerald-600 text-white p-4 w-full rounded-xl font-bold text-lg">Deposit</button>
-          <p id="depositMsg" class="text-center mt-3 text-sm font-semibold"></p>
-        </div>
-        <div class="bg-white p-6 rounded-2xl shadow-xl">
-          <h3 class="text-xl font-bold mb-4 text-orange-600">Withdraw <span id="withdrawCoinLabel">USD</span></h3>
-          <input id="withdrawAmount" type="number" step="any" placeholder="0.00" class="border-2 border-gray-200 p-4 text-lg w-full mb-3 rounded-xl font-semibold">
-          <button onclick="withdraw()" class="bg-gradient-to-r from-orange-500 to-amber-600 text-white p-4 w-full rounded-xl font-bold text-lg">Withdraw</button>
-          <p id="withdrawMsg" class="text-center mt-3 text-sm font-semibold"></p>
+      <!-- ADMIN ONLY -->
+      <div id="adminContent" style="display:none">
+        <div class="dark-glass p-6 rounded-2xl shadow-2xl">
+          <div class="flex justify-between items-center mb-4">
+            <h3 class="text-2xl font-bold">All Users</h3>
+            <input id="searchInput" onkeyup="searchUsers()" type="text" placeholder="Search..." class="bg-gray-900/50 border-2 border-gray-700 p-2 rounded-lg w-64">
+          </div>
+          <div class="overflow-x-auto">
+            <table>
+              <thead><tr><th>#</th><th>User</th><th>USD</th><th>USDT</th><th>BTC</th><th>ETH</th><th>Action</th></tr></thead>
+              <tbody id="usersTable"><tr><td colspan="7" class="text-center p-4">Loading...</td></tr></tbody>
+            </table>
+          </div>
         </div>
       </div>
 
-      <div class="bg-white p-6 rounded-2xl shadow-xl mt-6">
-        <h3 class="text-xl font-bold mb-4">Send <span id="sendCoinLabel">USD</span></h3>
-        <input id="sendEmail" type="email" placeholder="Receiver Email" class="border-2 border-gray-200 p-4 text-lg w-full mb-3 rounded-xl">
-        <input id="sendAmount" type="number" step="any" placeholder="0.00" class="border-2 border-gray-200 p-4 text-lg w-full mb-3 rounded-xl font-semibold">
-        <button onclick="sendMoney()" class="bg-gradient-to-r from-indigo-600 to-purple-600 text-white p-4 w-full rounded-xl font-bold text-lg">Send</button>
-        <p id="sendMsg" class="text-center mt-3 text-sm font-semibold"></p>
-      </div>
-
-      <!-- HISTORY -->
-      <div class="bg-white p-6 rounded-2xl shadow-xl mt-6">
-        <h3 class="text-xl font-bold mb-4"><span id="historyCoinLabel">USD</span> Transaction History</h3>
-        <div id="historyList" class="space-y-3 max-h-96 overflow-y-auto">
-          <p class="text-gray-400 text-center">Loading...</p>
+      <!-- NORMAL USER -->
+      <div id="userContent" style="display:none">
+        <div class="dark-glass p-10 rounded-2xl shadow-2xl text-center">
+          <h3 class="text-3xl font-bold text-gray-200">Your Wallet is Ready</h3>
+          <p class="text-gray-400 mt-2">Use the deposit buttons above to add funds</p>
         </div>
       </div>
     </div>
 
-    <!-- ADMIN ONLY CONTENT - ONLY ADMIN SEES THIS -->
-    <div id="adminContent" style="display:none">
-      <div class="bg-white p-6 rounded-2xl shadow-xl mb-6">
-        <h3 class="text-gray-500 text-sm uppercase tracking-wider">Total Registered Users</h3>
-        <p id="totalUsers" class="text-5xl font-bold mt-2 text-indigo-600">0</p>
-      </div>
-      <div class="bg-white p-6 rounded-2xl shadow-xl overflow-x-auto">
-        <h3 class="text-2xl font-bold mb-4">All Users - Admin Panel</h3>
-        <table class="text-sm">
-          <thead><tr><th>#</th><th>Email</th><th>USD</th><th>BTC</th><th>ETH</th><th>USDT</th><th>Action</th></tr></thead>
-          <tbody id="usersTable"><tr><td colspan="8" class="text-center p-4">Loading...</td></tr></tbody>
-        </table>
+    <!-- PROFILE PAGE -->
+    <div id="profileContent" style="display:none">
+      <button onclick="showDashboard()" class="mb-4 text-indigo-400 hover:underline">← Back to Dashboard</button>
+      <div class="dark-glass p-10 rounded-2xl shadow-2xl max-w-2xl mx-auto">
+        <h3 class="text-3xl font-bold mb-6">My Profile</h3>
+        <div class="flex items-center gap-4 mb-4"><img id="profileAvatar" src="https://ui-avatars.com/api/?name=U&background=4F46E5&color=fff" class="avatar w-20 h-20"><input type="file" id="avatarUpload" accept="image/*" onchange="uploadAvatar()" class="text-sm"></div>
+        <div class="space-y-4">
+          <div><label class="text-gray-400 text-sm">Full Name</label><input id="profileName" type="text" class="bg-gray-900/50 border-2 border-gray-700 p-3 w-full mt-1 rounded-xl focus:border-indigo-500 outline-none"></div>
+          <div><label class="text-gray-400 text-sm">Email</label><input id="profileEmail" type="email" class="bg-gray-900/50 border-2 border-gray-700 p-3 w-full mt-1 rounded-xl focus:border-indigo-500 outline-none" readonly></div>
+          <button onclick="updateProfile()" class="bg-gradient-to-r from-indigo-600 to-purple-600 text-white p-3 w-full rounded-xl font-bold shadow-lg">Update Profile</button>
+          <p id="profileMsg" class="text-green-400 text-center text-sm"></p>
+        </div>
       </div>
     </div>
 
+  </div>
+</div>
+
+<!-- DEPOSIT MODAL -->
+<div id="depositModal" style="display:none" class="fixed inset-0 bg-black/70 flex items-center justify-center z-50">
+  <div class="dark-glass p-8 rounded-2xl w-96">
+    <h3 class="text-2xl font-bold mb-4">Deposit <span id="depositCurrency"></span></h3>
+    <input id="depositAmount" type="number" placeholder="Enter amount" class="bg-gray-900/50 border-2 border-gray-700 p-3 w-full mb-4 rounded-xl">
+    <input id="depositUserId" type="hidden">
+    <button onclick="confirmDeposit()" class="bg-green-600 text-white p-3 w-full rounded-xl font-bold mb-2">Confirm Deposit</button>
+    <button onclick="closeDepositModal()" class="bg-gray-700 text-white p-3 w-full rounded-xl font-bold">Cancel</button>
   </div>
 </div>
 
@@ -146,238 +149,88 @@ const firebaseConfig = {
 firebase.initializeApp(firebaseConfig);
 const auth = firebase.auth();
 const db = firebase.firestore();
+const storage = firebase.storage();
 
 const ADMIN_EMAIL = "admin@test.com";
 let currentUserData = null;
-let selectedCoin = "USD";
+let allUsers = [];
+let depositTargetUserId = null;
+let depositCurrency = null;
 
-const COINS = {
-  USD: { symbol: "$", decimals: 2 },
-  BTC: { symbol: "₿", decimals: 8 },
-  ETH: { symbol: "Ξ", decimals: 6 },
-  USDT: { symbol: "₮", decimals: 2 }
-};
+// PAGE SWITCHERS
+function showSignup(){ hideAll(); document.getElementById("signupPage").style.display="block"; }
+function showLogin(){ hideAll(); document.getElementById("loginPage").style.display="block"; }
+function showDashboard(){ hideAll(); document.getElementById("dashPage").style.display="block"; document.getElementById("dashboardContent").style.display="block"; }
+function showProfile(){ hideAll(); document.getElementById("dashPage").style.display="block"; document.getElementById("profileContent").style.display="block"; loadProfile(); }
+function hideAll(){ document.getElementById("loginPage").style.display="none"; document.getElementById("signupPage").style.display="none"; document.getElementById("dashPage").style.display="none"; document.getElementById("dashboardContent").style.display="none"; document.getElementById("profileContent").style.display="none"; }
 
-function getBalanceNum(val){ return parseFloat(val) || 0; }
-
-function switchCoin(coin){
-  selectedCoin = coin;
-  document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
-  document.getElementById(`tab-${coin}`).classList.add('active');
-  document.getElementById(`coinLabel`).innerText = coin;
-  document.getElementById(`depositCoinLabel`).innerText = coin;
-  document.getElementById(`withdrawCoinLabel`).innerText = coin;
-  document.getElementById(`sendCoinLabel`).innerText = coin;
-  document.getElementById(`historyCoinLabel`).innerText = coin;
-  updateUI();
-}
-
-function login() {
-  document.getElementById("err").innerText = "";
-  const email = document.getElementById("email").value;
-  const password = document.getElementById("password").value;
-  auth.signInWithEmailAndPassword(email, password).catch(e => document.getElementById("err").innerText = e.message)
-}
-
-function signup() {
-  document.getElementById("err").innerText = "";
-  const email = document.getElementById("email").value;
-  const password = document.getElementById("password").value;
-  auth.createUserWithEmailAndPassword(email, password).then(userCred => {
-    db.collection("users").doc(userCred.user.uid).set({
-      email: userCred.user.email, name: email.split('@')[0],
-      balances: { USD: 0, BTC: 0, ETH: 0, USDT: 0 },
-      transactions: [], createdAt: new Date()
-    })
-  }).catch(e => document.getElementById("err").innerText = e.message)
-}
-
-function googlePopupLogin() {
-  document.getElementById("err").innerText = "";
-  const provider = new firebase.auth.GoogleAuthProvider();
-  auth.signInWithPopup(provider).then(res => {
-    db.collection("users").doc(res.user.uid).get().then(doc => {
-      if(!doc.exists){
-        db.collection("users").doc(res.user.uid).set({
-          email: res.user.email, name: res.user.displayName,
-          balances: { USD: 0, BTC: 0, ETH: 0, USDT: 0 },
-          transactions: [], createdAt: new Date()
-        })
-      }
-    })
-  }).catch(e => document.getElementById("err").innerText = e.message)
-}
-
+function login() { auth.signInWithEmailAndPassword(document.getElementById("loginEmail").value, document.getElementById("loginPassword").value).catch(e => document.getElementById("loginErr").innerText = e.message) }
+function signup() { auth.createUserWithEmailAndPassword(document.getElementById("signupEmail").value, document.getElementById("signupPassword").value).then(userCred => { db.collection("users").doc(userCred.user.uid).set({name: document.getElementById("signupName").value, email: document.getElementById("signupEmail").value, avatar: "", balance: {USD:0, USDT:0, BTC:0, ETH:0}, createdAt: new Date()}); alert("Account created!"); showLogin(); }).catch(e => document.getElementById("signupErr").innerText = e.message) }
+function googlePopupLogin() { auth.signInWithPopup(new firebase.auth.GoogleAuthProvider()).catch(e => document.getElementById("loginErr").innerText = e.message) }
 function logout() { auth.signOut() }
 
-function deposit(){
+function uploadAvatar(){ const file = document.getElementById("avatarUpload").files[0]; if(!file) return; const user = auth.currentUser; storage.ref(`avatars/${user.uid}`).put(file).then(() => storage.ref(`avatars/${user.uid}`).getDownloadURL()).then(url => { db.collection("users").doc(user.uid).update({avatar: url}); document.getElementById("profileAvatar").src = url; document.getElementById("navAvatar").src = url; }) }
+function loadProfile(){ if(!currentUserData) return; document.getElementById("profileName").value = currentUserData.name || ""; document.getElementById("profileEmail").value = currentUserData.email || ""; document.getElementById("profileAvatar").src = currentUserData.avatar || `https://ui-avatars.com/api/?name=${currentUserData.name}&background=4F46E5&color=fff`; document.getElementById("navAvatar").src = currentUserData.avatar || `https://ui-avatars.com/api/?name=${currentUserData.name}&background=4F46E5&color=fff`; }
+function updateProfile(){ db.collection("users").doc(auth.currentUser.uid).update({ name: document.getElementById("profileName").value }).then(() => { document.getElementById("profileMsg").innerText = "Profile updated!"; }) }
+
+// NEW: DEPOSIT SYSTEM
+function openDepositModal(currency, userId = null){
+  depositCurrency = currency;
+  depositTargetUserId = userId || auth.currentUser.uid; // if no userId, deposit to self
+  document.getElementById("depositCurrency").innerText = currency;
+  document.getElementById("depositModal").style.display = "flex";
+}
+function closeDepositModal(){ document.getElementById("depositModal").style.display = "none"; document.getElementById("depositAmount").value = ""; }
+
+function confirmDeposit(){
   const amount = parseFloat(document.getElementById("depositAmount").value);
-  document.getElementById("depositMsg").innerText = "";
-  if(isNaN(amount) || amount <= 0) return showMsg("depositMsg", "Enter a valid amount", "red");
-  const currentBalance = getBalanceNum(currentUserData.balances[selectedCoin]);
-  const newBalance = currentBalance + amount;
-  const newTransaction = {type: "Deposit", coin: selectedCoin, amount: amount, date: new Date(), note: `${selectedCoin} Deposit`};
-  db.collection("users").doc(auth.currentUser.uid).update({
-    [`balances.${selectedCoin}`]: newBalance,
-    transactions: firebase.firestore.FieldValue.arrayUnion(newTransaction)
-  }).then(() => { showMsg("depositMsg", `${COINS[selectedCoin].symbol}${amount} deposited!`, "green"); document.getElementById("depositAmount").value = ""; })
-}
+  if(amount <= 0) return alert("Enter valid amount");
 
-function withdraw(){
-  const amount = parseFloat(document.getElementById("withdrawAmount").value);
-  document.getElementById("withdrawMsg").innerText = "";
-  if(isNaN(amount) || amount <= 0) return showMsg("withdrawMsg", "Enter a valid amount", "red");
-  const currentBalance = getBalanceNum(currentUserData.balances[selectedCoin]);
-  if(amount > currentBalance) return showMsg("withdrawMsg", "Not enough balance", "red");
-  const newBalance = currentBalance - amount;
-  const newTransaction = {type: "Withdraw", coin: selectedCoin, amount: amount, date: new Date(), note: `${selectedCoin} Withdrawal`};
-  db.collection("users").doc(auth.currentUser.uid).update({
-    [`balances.${selectedCoin}`]: newBalance,
-    transactions: firebase.firestore.FieldValue.arrayUnion(newTransaction)
-  }).then(() => { showMsg("withdrawMsg", `${COINS[selectedCoin].symbol}${amount} withdrawn!`, "green"); document.getElementById("withdrawAmount").value = ""; })
-}
-
-function sendMoney(){
-  const receiverEmail = document.getElementById("sendEmail").value.trim();
-  const amount = parseFloat(document.getElementById("sendAmount").value);
-  document.getElementById("sendMsg").innerText = "";
-  if(!receiverEmail || isNaN(amount) || amount <= 0) return showMsg("sendMsg", "Enter valid email and amount", "red");
-  const senderBalance = getBalanceNum(currentUserData.balances[selectedCoin]);
-  if(amount > senderBalance) return showMsg("sendMsg", "Not enough balance", "red");
-  if(receiverEmail === auth.currentUser.email) return showMsg("sendMsg", "Can't send to yourself", "red");
-  db.collection("users").where("email", "==", receiverEmail).get().then(snapshot => {
-    if(snapshot.empty) return showMsg("sendMsg", "User not found", "red");
-    const receiverDoc = snapshot.docs[0];
-    const receiverRef = db.collection("users").doc(receiverDoc.id);
-    const receiverData = receiverDoc.data();
-    const batch = db.batch();
-    const senderRef = db.collection("users").doc(auth.currentUser.uid);
-    const newSenderBalance = senderBalance - amount;
-    const newReceiverBalance = getBalanceNum(receiverData.balances[selectedCoin]) + amount;
-    const senderTx = {type: "Send", coin: selectedCoin, amount: amount, date: new Date(), note: `To: ${receiverEmail}`};
-    const receiverTx = {type: "Receive", coin: selectedCoin, amount: amount, date: new Date(), note: `From: ${auth.currentUser.email}`};
-    batch.update(senderRef, { [`balances.${selectedCoin}`]: newSenderBalance, transactions: firebase.firestore.FieldValue.arrayUnion(senderTx) });
-    batch.update(receiverRef, { [`balances.${selectedCoin}`]: newReceiverBalance, transactions: firebase.firestore.FieldValue.arrayUnion(receiverTx) });
-    batch.commit().then(() => { showMsg("sendMsg", `${COINS[selectedCoin].symbol}${amount} sent to ${receiverEmail}`, "green"); document.getElementById("sendEmail").value = ""; document.getElementById("sendAmount").value = ""; });
-  })
-}
-
-function adminTopUp(userId, email, coin){
-  const amount = prompt(`Enter ${coin} amount to add to ${email}`);
-  if(!amount || isNaN(parseFloat(amount))) return alert("Invalid amount");
-  const userRef = db.collection("users").doc(userId);
+  const userRef = db.collection("users").doc(depositTargetUserId);
   userRef.get().then(doc => {
-    const currentBalance = getBalanceNum(doc.data().balances[coin]);
-    const newBalance = currentBalance + parseFloat(amount);
-    const newTransaction = {type: "Admin Top-up", coin: coin, amount: parseFloat(amount), date: new Date(), note: `Added ${coin} by Admin`};
-    userRef.update({ [`balances.${coin}`]: newBalance, transactions: firebase.firestore.FieldValue.arrayUnion(newTransaction) })
-.then(() => alert(`${COINS[coin].symbol}${amount} added to ${email}`));
-  })
-}
-
-function showMsg(id, text, color){
-  document.getElementById(id).innerText = text;
-  document.getElementById(id).className = `text-${color}-500 text-center mt-3 text-sm font-semibold`;
-}
-
-function loadUsers(){
-  db.collection("users").orderBy("createdAt", "desc").onSnapshot(snapshot => {
-    document.getElementById("totalUsers").innerText = snapshot.size;
-    const usersTable = document.getElementById("usersTable");
-    usersTable.innerHTML = "";
-    let count = 1;
-    snapshot.forEach(doc => {
-      const user = doc.data();
-      const balances = user.balances || { USD: 0, BTC: 0, ETH: 0, USDT: 0 };
-      usersTable.innerHTML += `<tr>
-        <td>${count}</td>
-        <td class="font-semibold">${user.email}</td>
-        <td class="font-bold text-green-600">$${getBalanceNum(balances.USD).toFixed(2)}</td>
-        <td class="font-bold">₿${getBalanceNum(balances.BTC).toFixed(6)}</td>
-        <td class="font-bold">Ξ${getBalanceNum(balances.ETH).toFixed(6)}</td>
-        <td class="font-bold">₮${getBalanceNum(balances.USDT).toFixed(2)}</td>
-        <td>
-          <button onclick="adminTopUp('${doc.id}', '${user.email}', 'USDT')" class="bg-purple-500 text-white px-3 py-1 rounded-lg text-xs font-bold">TopUp</button>
-        </td>
-      </tr>`;
-      count++;
+    let bal = doc.data().balance || {USD:0, USDT:0, BTC:0, ETH:0};
+    bal[depositCurrency] += amount;
+    userRef.update({balance: bal}).then(() => {
+      alert(`${amount} ${depositCurrency} deposited!`);
+      closeDepositModal();
     })
   })
 }
 
-function updateUI(){
-  if(!currentUserData) return;
-  const balances = currentUserData.balances || { USD: 0, BTC: 0, ETH: 0, USDT: 0 };
-  const balance = getBalanceNum(balances[selectedCoin]).toFixed(COINS[selectedCoin].decimals);
-  document.getElementById("userBalance").innerText = `${COINS[selectedCoin].symbol}${balance}`;
-
-  const historyList = document.getElementById("historyList");
-  const transactions = (currentUserData.transactions || []).filter(tx => tx.coin === selectedCoin ||!tx.coin);
-  if(transactions.length === 0){
-    historyList.innerHTML = '<p class="text-gray-400 text-center">No transactions yet</p>';
-  } else {
-    historyList.innerHTML = "";
-    transactions.sort((a,b) => b.date.seconds - a.date.seconds).forEach(tx => {
-      const date = new Date(tx.date.seconds * 1000).toLocaleString();
-      let colorClass = "history-item"; let sign = "+";
-      if(tx.type === "Send"){ colorClass += " history-send"; sign = "-"; }
-      if(tx.type === "Deposit"){ colorClass += " history-deposit"; }
-      if(tx.type === "Withdraw"){ colorClass += " history-withdraw"; sign = "-"; }
-      if(tx.type === "Receive"){ colorClass += " history-receive"; }
-      if(tx.type === "Admin Top-up"){ colorClass += " history-admin"; }
-      const coinSym = COINS[tx.coin || "USD"].symbol;
-
-      historyList.innerHTML += `
-        <div class="p-4 bg-gray-50 rounded-xl ${colorClass}">
-          <div class="flex justify-between items-center">
-            <span class="font-bold text-lg">${tx.type} ${tx.coin || "USD"}</span>
-            <span class="font-bold text-lg">${sign}${coinSym}${tx.amount.toFixed(COINS[tx.coin || "USD"].decimals)}</span>
-          </div>
-          <p class="text-sm text-gray-500">${tx.note || ""}</p>
-          <p class="text-xs text-gray-400 mt-1">${date}</p>
-        </div>
-      `;
-    })
-  }
-}
-
-function loadUserData(uid){
-  db.collection("users").doc(uid).onSnapshot(doc => {
-    if(doc.exists){
-      currentUserData = doc.data();
-      if(currentUserData.balance!== undefined &&!currentUserData.balances){
-        db.collection("users").doc(uid).update({
-          balances: { USD: currentUserData.balance, BTC: 0, ETH: 0, USDT: 0 }
-        })
-      }
-      updateUI();
-    }
+function renderUsers(users){
+  const usersTable = document.getElementById("usersTable");
+  usersTable.innerHTML = "";
+  let count = 1;
+  users.forEach(u => {
+    const user = u.data;
+    const bal = user.balance || {USD:0, USDT:0, BTC:0, ETH:0};
+    const avatar = user.avatar || `https://ui-avatars.com/api/?name=${user.name}&background=4F46E5&color=fff`;
+    usersTable.innerHTML += `<tr><td>${count}</td><td><div class="flex items-center gap-2"><img src="${avatar}" class="avatar">${user.name}</div></td><td>$${bal.USD.toFixed(2)}</td><td>${bal.USDT.toFixed(2)}</td><td>${bal.BTC.toFixed(4)}</td><td>${bal.ETH.toFixed(4)}</td><td><button onclick="openDepositModal('USD', '${u.id}')" class="bg-green-600 px-3 py-1 rounded-lg text-xs">Deposit</button></td></tr>`;
+    count++;
   })
 }
+function searchUsers(){ const term = document.getElementById("searchInput").value.toLowerCase(); const filtered = allUsers.filter(u => u.data.name.toLowerCase().includes(term) || u.data.email.toLowerCase().includes(term)); renderUsers(filtered); }
+function loadUsers(){ db.collection("users").orderBy("createdAt", "desc").onSnapshot(snapshot => { allUsers = []; snapshot.forEach(doc => allUsers.push({id: doc.id, data: doc.data()})); renderUsers(allUsers); }) }
 
 auth.onAuthStateChanged(user => {
   if(user){
-    db.collection("users").doc(user.uid).set({
-      email: user.email, name: user.displayName || user.email.split('@')[0]
-    }, {merge: true})
-
-    document.getElementById("loginPage").style.display="none";
-    document.getElementById("dashPage").style.display="block";
-    document.getElementById("userEmail").innerText = user.email;
-    document.getElementById("walletCard").style.display="block";
-    loadUserData(user.uid);
-
-    // ADMIN CHECK - ONLY ADMIN SEES TABLE
-    if(user.email === ADMIN_EMAIL){
-      document.getElementById("adminContent").style.display="block";
-      loadUsers();
-    } else {
-      document.getElementById("adminContent").style.display="none"; // HIDDEN FOR USERS
-    }
-  } else {
-    document.getElementById("loginPage").style.display="block";
-    document.getElementById("dashPage").style.display="none"
-  }
+    db.collection("users").doc(user.uid).get().then(doc => {
+      currentUserData = doc.data();
+      document.getElementById("userEmail").innerText = currentUserData.email;
+      // UPDATE BALANCE CARDS
+      const bal = currentUserData.balance || {USD:0, USDT:0, BTC:0, ETH:0};
+      document.getElementById("balUSD").innerText = `$${bal.USD.toFixed(2)}`;
+      document.getElementById("balUSDT").innerText = bal.USDT.toFixed(2);
+      document.getElementById("balBTC").innerText = bal.BTC.toFixed(4);
+      document.getElementById("balETH").innerText = bal.ETH.toFixed(4);
+      loadProfile();
+    })
+    // CREATE USER WITH BALANCE IF NEW
+    db.collection("users").doc(user.uid).set({email: user.email, name: user.displayName || user.email.split('@')[0], avatar: user.photoURL || "", balance: {USD:0, USDT:0, BTC:0, ETH:0}, createdAt: new Date()}, {merge: true})
+    showDashboard();
+    if(user.email === ADMIN_EMAIL){ document.getElementById("adminContent").style.display="block"; document.getElementById("userContent").style.display="none"; loadUsers(); }
+    else { document.getElementById("adminContent").style.display="none"; document.getElementById("userContent").style.display="block"; }
+  } else { showLogin(); }
 });
 </script>
 </body>
